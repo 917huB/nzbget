@@ -5,28 +5,25 @@ import time
 import shutil
 import base64
 import distutils.spawn
-try:
-	from xmlrpclib import ServerProxy # python 2
-except ImportError:
-	from xmlrpc.client import ServerProxy # python 3
+from xmlrpc.client import ServerProxy
 
 nzbget_srcdir = os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
 nzbget_maindir = nzbget_srcdir + '/tests/testdata/nzbget.temp'
 nzbget_configfile = nzbget_maindir + '/nzbget.conf'
-nzbget_rpcurl = 'http://127.0.0.1:6789/xmlrpc';
+nzbget_rpcurl = 'http://127.0.0.1:6799/xmlrpc';
 
 exe_ext = '.exe' if os.name == 'nt' else ''
 
-nzbget_bin = nzbget_srcdir + '/nzbget' + exe_ext
+nzbget_bin = nzbget_srcdir + '/build/nzbget' + exe_ext
 nserv_datadir = nzbget_srcdir + '/tests/testdata/nserv.temp'
 
 sevenzip_bin = distutils.spawn.find_executable('7z')
 if sevenzip_bin is None:
-	sevenzip_bin = nzbget_srcdir + '/7z' + exe_ext
+	sevenzip_bin = nzbget_srcdir + '/build/7za' + exe_ext
 
 par2_bin = distutils.spawn.find_executable('par2')
 if par2_bin is None:
-	par2_bin = nzbget_srcdir + '/par2' + exe_ext
+	par2_bin = nzbget_srcdir + '/build/par2' + exe_ext
 
 has_failures = False
 
@@ -38,25 +35,25 @@ def pytest_addoption(parser):
 	parser.addini('par2_bin', 'path to par2 binary', default=par2_bin)
 	parser.addoption("--hold", action="store_true", help="Hold at the end of test (keep NZBGet running)")
 
-def check_config():
+def check_config(config):
 	global nzbget_bin
-	nzbget_bin = pytest.config.getini('nzbget_bin')
+	nzbget_bin = config.getini('nzbget_bin')
 	if not os.path.exists(nzbget_bin):
 		pytest.exit('Could not find nzbget binary at ' + nzbget_bin + '. Alternative path can be set via pytest ini option "nzbget_bin".')
 
 	global sevenzip_bin, par2_bin
-	sevenzip_bin = pytest.config.getini('sevenzip_bin')
-	par2_bin = pytest.config.getini('par2_bin')
+	sevenzip_bin = config.getini('sevenzip_bin')
+	par2_bin = config.getini('par2_bin')
 	if not os.path.exists(sevenzip_bin):
 		pytest.exit('Could not find 7-zip binary in search path or at ' + sevenzip_bin + '. Alternative path can be set via pytest ini option "sevenzip_bin".')
 	if not os.path.exists(par2_bin):
 		pytest.exit('Could not find par2 binary in search path or at ' + par2_bin + '. Alternative path can be set via pytest ini option "par2_bin".')
 
 	global nserv_datadir
-	nserv_datadir = pytest.config.getini('nserv_datadir')
+	nserv_datadir = config.getini('nserv_datadir')
 
 	global nzbget_maindir
-	nzbget_maindir = pytest.config.getini('nzbget_maindir')
+	nzbget_maindir = config.getini('nzbget_maindir')
 	global nzbget_configfile
 	nzbget_configfile = nzbget_maindir + '/nzbget.conf'
 
@@ -73,7 +70,7 @@ class NServ:
 @pytest.fixture(scope='session')
 
 def nserv(request):
-	check_config()
+	check_config(request.config)
 
 	instance = NServ()
 	request.addfinalizer(instance.finalize)
@@ -82,16 +79,17 @@ def nserv(request):
 
 class Nzbget:
 
-	def __init__(self, options, session):
+	def __init__(self, options, session, config):
 		self.options = options
 		self.session = session
+		self.config = config
 		self.api = ServerProxy(nzbget_rpcurl)
 		self.prepare_session()
 		self.process = subprocess.Popen([nzbget_bin, '-c', nzbget_configfile, '-s', '-o', 'outputmode=log'])
 		self.wait_until_started()
 
 	def finalize(self):
-		if pytest.config.getoption("--hold"):
+		if self.config.getoption("--hold"):
 			print('\nNZBGet is still running, press Ctrl+C to quit')
 			time.sleep(100000)
 		self.process.kill()
@@ -126,7 +124,8 @@ class Nzbget:
 		config.write('QueueDir=${MainDir}/queue\n')
 		config.write('NzbDir=${MainDir}/nzb\n')
 		config.write('LogFile=${MainDir}/nzbget.log\n')
-		config.write('SevenZipCmd=' + sevenzip_bin + '\n')
+		config.write('SevenZipCmd=' + str(sevenzip_bin) + '\n')
+		config.write('UnrarCmd=' + nzbget_srcdir + '/build/unrar' + exe_ext + '\n')
 		config.write('WriteLog=append\n')
 		config.write('DetailTarget=log\n')
 		config.write('InfoTarget=log\n')
@@ -146,15 +145,17 @@ class Nzbget:
 		config.write('ControlUsername=\n')
 		config.write('ControlPassword=\n')
 		config.write('ControlIP=127.0.0.1\n')
-		config.write('Server1.host=127.0.0.1\n')
-		config.write('Server1.port=6791\n')
-		config.write('Server1.connections=10\n')
-		config.write('Server1.level=0\n')
-		config.write('Server2.host=127.0.0.1\n')
-		config.write('Server2.port=6792\n')
-		config.write('Server2.connections=10\n')
-		config.write('Server2.level=1\n')
-		config.write('Server2.active=no\n')
+		config.write('ControlPort=6799\n')
+		config.write('ArticleInterval=0\n')
+		config.write('Server1.Host=127.0.0.1\n')
+		config.write('Server1.Port=6791\n')
+		config.write('Server1.Connections=10\n')
+		config.write('Server1.Level=0\n')
+		config.write('Server2.Host=127.0.0.1\n')
+		config.write('Server2.Port=6792\n')
+		config.write('Server2.Connections=10\n')
+		config.write('Server2.Level=1\n')
+		config.write('Server2.Active=no\n')
 		for opt in self.options:
 			config.write(opt + '\n')
 
@@ -172,7 +173,9 @@ class Nzbget:
 		print('Started')
 
 	def append_nzb(self, nzb_name, nzb_content, unpack = None, dupekey = '', dupescore = 0, dupemode = 'FORCE', params = None):
-		nzbcontent64 = base64.standard_b64encode(nzb_content)
+		if isinstance(nzb_content, str):
+			nzb_content = nzb_content.encode('utf-8')
+		nzbcontent64 = base64.standard_b64encode(nzb_content).decode('utf-8')
 		if params is None:
 			params = []
 		if unpack == True:
@@ -190,34 +193,57 @@ class Nzbget:
 		in_file.close()
 		return nzbcontent
 
-	def download_nzb(self, nzb_name, nzb_content = None, unpack = None, dupekey = '', dupescore = 0, dupemode = 'FORCE', params = None):
+	def download_nzb(self, nzb_name, nzb_content = None, unpack = None, dupekey = '', dupescore = 0, dupemode = 'FORCE', params = None, prev_nzbid = None):
 		if not nzb_content:
 			nzb_content = self.load_nzb(nzb_name)
 		self.append_nzb(nzb_name, nzb_content, unpack, dupekey, dupescore, dupemode, params)
-		hist = self.wait_nzb(nzb_name)
+		hist = self.wait_nzb(nzb_name, prev_nzbid)
 		return hist
 
-	def wait_nzb(self, nzb_name):
-		print('Waiting for download completion')
+	def wait_nzb(self, nzb_name, prev_nzbid=None):
+		print('Waiting for download completion: ' + nzb_name)
+		if prev_nzbid is not None:
+			time.sleep(1.0)
+			
 		hist = None
-		while not hist:
-			history = self.api.history()
-			for hist1 in history:
-				if hist1['NZBFilename'] == nzb_name:
-					hist = hist1
-					break
-			time.sleep(0.1)
+		for _ in range(60):
+			if self.process.poll() is not None:
+				raise Exception(f'NZBGet process crashed with exit code {self.process.poll()}')
+			
+			try:
+				history = self.api.history()
+				for hist1 in history:
+					if hist1['NZBFilename'] == nzb_name:
+						hist = hist1
+						break
+				if not hist:
+					groups = self.api.listgroups()
+					for group in groups:
+						if group['NZBFilename'] == nzb_name and group['Status'] == 'PAUSED':
+							hist = group
+							break
+			except Exception:
+				pass
+				
+			if hist:
+				break
+				
+			time.sleep(1.0)
+			
+		if not hist:
+			raise Exception('Timeout waiting for NZB completion')
+			
 		return hist
 
 	def clear(self):
-		self.api.editqueue('HistoryFinalDelete', 0, '', range(1, 1000));
+		self.api.editqueue('HistoryFinalDelete', '', list(range(1, 1000)))
 
 @pytest.fixture(scope='module')
 
 def nzbget(request):
-	check_config()
+	check_config(request.config)
 
-	instance = Nzbget(getattr(request.module, 'nzbget_options', []), request.session)
+	instance = Nzbget(getattr(request.module, 'nzbget_options', []), request.session, request.config)
 	request.addfinalizer(instance.finalize)
 	return instance
 
