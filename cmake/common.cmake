@@ -56,17 +56,7 @@ elseif(CMAKE_BUILD_TYPE STREQUAL "Release")
 	endif()
 endif()
 
-if (TOOLCHAIN_PREFIX MATCHES "android")
-	set(HAVE_STD_FILESYSTEM FALSE)
-else()
-	check_cxx_source_compiles("
-	#include <filesystem>
-	int main() {
-		std::filesystem::path p(\"/tmp\");
-		return std::filesystem::exists(p) ? 0 : 1;
-	}
-	" HAVE_STD_FILESYSTEM)
-endif()
+set(HAVE_STD_FILESYSTEM TRUE)
 
 if(NOT HAVE_STD_FILESYSTEM)
 	message(STATUS "Target does not support native std::filesystem. Enabling Boost.Filesystem fallback")

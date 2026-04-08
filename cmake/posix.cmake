@@ -23,10 +23,6 @@ message(STATUS "  DISABLE PARCHECK:  ${DISABLE_PARCHECK}")
 
 set(BOOST_NEEDED_COMPONENTS json)
 
-if(NOT HAVE_STD_FILESYSTEM)
-	list(APPEND BOOST_NEEDED_COMPONENTS filesystem)
-endif()
-
 if(APPLE)
 	# On macOS Cmake, when cross-compiling, sometimes CMAKE_SYSTEM_PROCESSOR wrongfully stays
 	# the same as CMAKE_HOST_SYSTEM_PROCESSOR regardless the target CPU.
@@ -112,9 +108,6 @@ else()
 		list(APPEND EXTERNAL_DEPS boost)
 	else()
 		set(LIBS ${LIBS} Boost::json)
-		if(NOT HAVE_STD_FILESYSTEM)
-			set(LIBS ${LIBS} Boost::filesystem)
-		endif()
 		set(INCLUDES ${INCLUDES} ${Boost_INCLUDE_DIR})
 	endif()
 endif()
