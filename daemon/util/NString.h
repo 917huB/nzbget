@@ -128,7 +128,7 @@ public:
 		m_data = nullptr;
 	}
 	WString(WString&& other) noexcept { m_data = other.m_data; other.m_data = nullptr; }
-	WString(WString& other) = delete;
+	WString(const WString& other) = delete;
 	operator wchar_t*() const { return m_data; }
 	wchar_t* operator*() const { return m_data; }
 	int Length() { return wcslen(m_data); }
@@ -148,6 +148,8 @@ public:
 		free(m_data);
 		m_data = nullptr;
 	}
+	StringBuilder() = default;
+	StringBuilder(const StringBuilder& other) = delete;
 	operator const char*() const { return m_data ? m_data : ""; }
 	explicit operator char*() { return m_data; }
 	const char* operator*() const { return m_data; }

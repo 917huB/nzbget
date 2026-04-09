@@ -261,7 +261,7 @@ void Scanner::CheckIncomingNzbs(const char* directory, const char* category, boo
 		{
 			ProcessSubdirectory(fullfilename, filename, category, checkStat);
 		}
-		else if (!isDirectory && CanProcessFile(fullfilename, checkStat))
+		else if (CanProcessFile(fullfilename, checkStat))
 		{
 			ProcessIncomingFile(directory, filename, fullfilename, category);
 		}

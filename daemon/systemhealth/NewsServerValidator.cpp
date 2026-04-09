@@ -1,7 +1,7 @@
 /*
  *  This file is part of nzbget. See <https://nzbget.com>.
  *
- *  Copyright (C) 2025 Denis <denis@nzbget.com>
+ *  Copyright (C) 2025-2026 Denis <denis@nzbget.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -38,7 +38,6 @@ NewsServerValidator::NewsServerValidator(const ::NewsServer& server)
 	m_validators.push_back(std::make_unique<ServerUsernameValidator>(server));
 	m_validators.push_back(std::make_unique<ServerPasswordValidator>(server));
 	m_validators.push_back(std::make_unique<ServerEncryptionValidator>(server));
-	m_validators.push_back(std::make_unique<ServerJoinGroupValidator>(server));
 	m_validators.push_back(std::make_unique<ServerCipherValidator>(server));
 	m_validators.push_back(std::make_unique<ServerConnectionsValidator>(server));
 	m_validators.push_back(std::make_unique<ServerRetentionValidator>(server));
@@ -155,18 +154,6 @@ Status ServerEncryptionValidator::Validate() const
 			"Communication with this server will not be encrypted");
 	}
 
-	return Status::Ok();
-}
-
-Status ServerJoinGroupValidator::Validate() const
-{
-	if (!m_server.GetActive()) return Status::Ok();
-
-	int join = m_server.GetJoinGroup();
-	if (join < 0 || join > 99)
-	{
-		return Status::Error("JoinGroup must be between 0 and 99");
-	}
 	return Status::Ok();
 }
 

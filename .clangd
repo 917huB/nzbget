@@ -1,0 +1,23 @@
+CompileFlags:
+  Add:
+    - "-Wall"
+    - "-Wextra"
+    - "-Wformat=2"
+    - "-Wformat-security"
+    - "-Wnull-dereference"
+    - "-Wimplicit-fallthrough"
+    - "-Wconversion"
+    - "-Wsign-conversion"
+    - "-U_FORTIFY_SOURCE"
+    - "-D_FORTIFY_SOURCE=2"
+    - "-fstack-protector-strong"
+
+Index:
+  Background: Build
+
+Completion:
+  AllScopes: Yes
+  HeaderInsertion: Never
+
+Diagnostics:
+  UnusedIncludes: Strict

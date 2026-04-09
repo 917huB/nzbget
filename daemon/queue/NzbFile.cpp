@@ -46,17 +46,19 @@ void NzbFile::LogDebugInfo()
 	info(" NZBFile %s", m_fileName.c_str());
 }
 
-void NzbFile::AddArticle(FileInfo* fileInfo, std::unique_ptr<ArticleInfo> articleInfo)
+ArticleInfo* NzbFile::AddArticle(FileInfo* fileInfo, std::unique_ptr<ArticleInfo> articleInfo)
 {
-	int index = articleInfo->GetPartNumber() - 1;
+	size_t index = Util::SafeIntCast<int, size_t>(articleInfo->GetPartNumber() - 1);
 
 	// make Article-List big enough
-	if (index >= (int)fileInfo->GetArticles()->size())
+	if (index >= fileInfo->GetArticles()->size())
 	{
 		fileInfo->GetArticles()->resize(index + 1);
 	}
 
 	(*fileInfo->GetArticles())[index] = std::move(articleInfo);
+	
+	return (*fileInfo->GetArticles())[index].get();
 }
 
 void NzbFile::AddFileInfo(std::unique_ptr<FileInfo> fileInfo)
@@ -407,8 +409,7 @@ void NzbFile::Parse_StartElement(const char *name, const char **atts)
 			std::unique_ptr<ArticleInfo> article = std::make_unique<ArticleInfo>();
 			article->SetPartNumber(partNumber);
 			article->SetSize(lsize);
-			m_article = article.get();
-			AddArticle(m_fileInfo.get(), std::move(article));
+			m_article = AddArticle(m_fileInfo.get(), std::move(article));
 		}
 	}
 	else if (!strcmp("meta", name))

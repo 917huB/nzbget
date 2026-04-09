@@ -817,7 +817,7 @@ void Options::SetOption(const char* optname, const char* value)
 	CString curvalue;
 
 #ifndef WIN32
-	if (value && (value[0] == '~') && (value[1] == '/'))
+	if (value && strncmp(value, "~/", 2) == 0)
 	{
 		if (m_noDiskAccess)
 		{
@@ -1507,8 +1507,10 @@ bool Options::SplitOptionString(const char* option, CString& optName, CString& o
 
 bool Options::ValidateOptionName(const char* optname, const char* optvalue)
 {
-	if (!strcasecmp(optname, CONFIGFILE.data()) || !strcasecmp(optname, APPBIN.data()) ||
-		!strcasecmp(optname, APPDIR.data()) || !strcasecmp(optname, APPVERSION.data()))
+	std::string_view opt_view(optname);
+
+	if (Util::EqualsNoCase(opt_view, CONFIGFILE) || Util::EqualsNoCase(opt_view, APPBIN) ||
+		Util::EqualsNoCase(opt_view, APPDIR) || Util::EqualsNoCase(opt_view, APPVERSION))
 	{
 		// read-only options
 		return false;
@@ -1525,16 +1527,16 @@ bool Options::ValidateOptionName(const char* optname, const char* optvalue)
 	{
 		char* p = (char*)optname + 6;
 		while (*p >= '0' && *p <= '9') p++;
-		if (p &&
-			(!strcasecmp(p, ".active") || !strcasecmp(p, ".name") ||
-			!strcasecmp(p, ".level") || !strcasecmp(p, ".host") ||
-			!strcasecmp(p, ".port") || !strcasecmp(p, ".username") ||
-			!strcasecmp(p, ".password") || !strcasecmp(p, ".joingroup") ||
-			!strcasecmp(p, ".encryption") || !strcasecmp(p, ".connections") ||
-			!strcasecmp(p, ".cipher") || !strcasecmp(p, ".group") ||
-			!strcasecmp(p, ".retention") || !strcasecmp(p, ".optional") ||
-			!strcasecmp(p, ".notes") || !strcasecmp(p, ".ipversion") ||
-			!strcasecmp(p, ".certverification")))
+		std::string_view suffix(p);
+		if (Util::EqualsNoCase(suffix, ".active") || Util::EqualsNoCase(suffix, ".name") ||
+			Util::EqualsNoCase(suffix, ".level") || Util::EqualsNoCase(suffix, ".host") ||
+			Util::EqualsNoCase(suffix, ".port") || Util::EqualsNoCase(suffix, ".username") ||
+			Util::EqualsNoCase(suffix, ".password") || Util::EqualsNoCase(suffix, ".joingroup") ||
+			Util::EqualsNoCase(suffix, ".encryption") || Util::EqualsNoCase(suffix, ".connections") ||
+			Util::EqualsNoCase(suffix, ".cipher") || Util::EqualsNoCase(suffix, ".group") ||
+			Util::EqualsNoCase(suffix, ".retention") || Util::EqualsNoCase(suffix, ".optional") ||
+			Util::EqualsNoCase(suffix, ".notes") || Util::EqualsNoCase(suffix, ".ipversion") ||
+			Util::EqualsNoCase(suffix, ".certverification"))
 		{
 			return true;
 		}
@@ -1544,9 +1546,10 @@ bool Options::ValidateOptionName(const char* optname, const char* optvalue)
 	{
 		char* p = (char*)optname + 4;
 		while (*p >= '0' && *p <= '9') p++;
-		if (p && (!strcasecmp(p, ".time") || !strcasecmp(p, ".weekdays") ||
-			!strcasecmp(p, ".command") || !strcasecmp(p, ".param") ||
-			!strcasecmp(p, ".downloadrate") || !strcasecmp(p, ".process")))
+		std::string_view suffix(p);
+		if (Util::EqualsNoCase(suffix, ".time") || Util::EqualsNoCase(suffix, ".weekdays") ||
+			Util::EqualsNoCase(suffix, ".command") || Util::EqualsNoCase(suffix, ".param") ||
+			Util::EqualsNoCase(suffix, ".downloadrate") || Util::EqualsNoCase(suffix, ".process"))
 		{
 			return true;
 		}
@@ -1556,8 +1559,9 @@ bool Options::ValidateOptionName(const char* optname, const char* optvalue)
 	{
 		char* p = (char*)optname + 8;
 		while (*p >= '0' && *p <= '9') p++;
-		if (p && (!strcasecmp(p, ".name") || !strcasecmp(p, ".destdir") || !strcasecmp(p, ".extensions") ||
-			!strcasecmp(p, ".unpack") || !strcasecmp(p, ".aliases")))
+		std::string_view suffix(p);
+		if (Util::EqualsNoCase(suffix, ".name") || Util::EqualsNoCase(suffix, ".destdir") || Util::EqualsNoCase(suffix, ".extensions") ||
+			Util::EqualsNoCase(suffix, ".unpack") || Util::EqualsNoCase(suffix, ".aliases"))
 		{
 			return true;
 		}
@@ -1567,10 +1571,11 @@ bool Options::ValidateOptionName(const char* optname, const char* optvalue)
 	{
 		char* p = (char*)optname + 4;
 		while (*p >= '0' && *p <= '9') p++;
-		if (p && (!strcasecmp(p, ".name") || !strcasecmp(p, ".url") || !strcasecmp(p, ".interval") ||
-			 !strcasecmp(p, ".filter") || !strcasecmp(p, ".backlog") || !strcasecmp(p, ".pausenzb") ||
-			 !strcasecmp(p, ".category") || !strcasecmp(p, ".categorySource") || !strcasecmp(p, ".priority") || 
-			 !strcasecmp(p, ".extensions")))
+		std::string_view suffix(p);
+		if (Util::EqualsNoCase(suffix, ".name") || Util::EqualsNoCase(suffix, ".url") || Util::EqualsNoCase(suffix, ".interval") ||
+			 Util::EqualsNoCase(suffix, ".filter") || Util::EqualsNoCase(suffix, ".backlog") || Util::EqualsNoCase(suffix, ".pausenzb") ||
+			 Util::EqualsNoCase(suffix, ".category") || Util::EqualsNoCase(suffix, ".categorySource") || Util::EqualsNoCase(suffix, ".priority") || 
+			 Util::EqualsNoCase(suffix, ".extensions"))
 		{
 			return true;
 		}
@@ -1583,36 +1588,36 @@ bool Options::ValidateOptionName(const char* optname, const char* optvalue)
 	}
 
 	// print warning messages for obsolete options
-	if (!strcasecmp(optname, RETRYONCRCERROR.data()) ||
-		!strcasecmp(optname, ALLOWREPROCESS.data()) ||
-		!strcasecmp(optname, LOADPARS.data()) ||
-		!strcasecmp(optname, THREADLIMIT.data()) ||
-		!strcasecmp(optname, POSTLOGKIND.data()) ||
-		!strcasecmp(optname, NZBLOGKIND.data()) ||
-		!strcasecmp(optname, PROCESSLOGKIND.data()) ||
-		!strcasecmp(optname, APPENDNZBDIR.data()) ||
-		!strcasecmp(optname, RENAMEBROKEN.data()) ||
-		!strcasecmp(optname, MERGENZB.data()) ||
-		!strcasecmp(optname, STRICTPARNAME.data()) ||
-		!strcasecmp(optname, RELOADURLQUEUE.data()) ||
-		!strcasecmp(optname, RELOADPOSTQUEUE.data()) ||
-		!strcasecmp(optname, PARCLEANUPQUEUE.data()) ||
-		!strcasecmp(optname, DELETECLEANUPDISK.data()) ||
-		!strcasecmp(optname, HISTORYCLEANUPDISK.data()) ||
-		!strcasecmp(optname, SAVEQUEUE.data()) ||
-		!strcasecmp(optname, RELOADQUEUE.data()) ||
-		!strcasecmp(optname, TERMINATETIMEOUT.data()) ||
-		!strcasecmp(optname, ACCURATERATE.data()) ||
-		!strcasecmp(optname, CREATEBROKENLOG.data()) ||
-		!strcasecmp(optname, BROKENLOG.data()))
+	if (Util::EqualsNoCase(opt_view, RETRYONCRCERROR) ||
+		Util::EqualsNoCase(opt_view, ALLOWREPROCESS) ||
+		Util::EqualsNoCase(opt_view, LOADPARS) ||
+		Util::EqualsNoCase(opt_view, THREADLIMIT) ||
+		Util::EqualsNoCase(opt_view, POSTLOGKIND) ||
+		Util::EqualsNoCase(opt_view, NZBLOGKIND) ||
+		Util::EqualsNoCase(opt_view, PROCESSLOGKIND) ||
+		Util::EqualsNoCase(opt_view, APPENDNZBDIR) ||
+		Util::EqualsNoCase(opt_view, RENAMEBROKEN) ||
+		Util::EqualsNoCase(opt_view, MERGENZB) ||
+		Util::EqualsNoCase(opt_view, STRICTPARNAME) ||
+		Util::EqualsNoCase(opt_view, RELOADURLQUEUE) ||
+		Util::EqualsNoCase(opt_view, RELOADPOSTQUEUE) ||
+		Util::EqualsNoCase(opt_view, PARCLEANUPQUEUE) ||
+		Util::EqualsNoCase(opt_view, DELETECLEANUPDISK) ||
+		Util::EqualsNoCase(opt_view, HISTORYCLEANUPDISK) ||
+		Util::EqualsNoCase(opt_view, SAVEQUEUE) ||
+		Util::EqualsNoCase(opt_view, RELOADQUEUE) ||
+		Util::EqualsNoCase(opt_view, TERMINATETIMEOUT) ||
+		Util::EqualsNoCase(opt_view, ACCURATERATE) ||
+		Util::EqualsNoCase(opt_view, CREATEBROKENLOG) ||
+		Util::EqualsNoCase(opt_view, BROKENLOG))
 	{
 		ConfigWarn("Option \"%s\" is obsolete, ignored", optname);
 		return true;
 	}
 
-	if (!strcasecmp(optname, POSTPROCESS.data()) ||
-		!strcasecmp(optname, NZBPROCESS.data()) ||
-		!strcasecmp(optname, NZBADDEDPROCESS.data()))
+	if (Util::EqualsNoCase(opt_view, POSTPROCESS) ||
+		Util::EqualsNoCase(opt_view, NZBPROCESS) ||
+		Util::EqualsNoCase(opt_view, NZBADDEDPROCESS))
 	{
 		if (optvalue && strlen(optvalue) > 0)
 		{
@@ -1622,15 +1627,15 @@ bool Options::ValidateOptionName(const char* optname, const char* optvalue)
 		return true;
 	}
 
-	if (!strcasecmp(optname, SCANSCRIPT.data()) ||
-		!strcasecmp(optname, QUEUESCRIPT.data()) ||
-		!strcasecmp(optname, FEEDSCRIPT.data()))
+	if (Util::EqualsNoCase(opt_view, SCANSCRIPT) ||
+		Util::EqualsNoCase(opt_view, QUEUESCRIPT) ||
+		Util::EqualsNoCase(opt_view, FEEDSCRIPT))
 	{
 		// will be automatically converted into "Extensions"
 		return true;
 	}
 
-	if (!strcasecmp(optname, CREATELOG.data()) || !strcasecmp(optname, RESETLOG.data()))
+	if (Util::EqualsNoCase(opt_view, CREATELOG) || Util::EqualsNoCase(opt_view, RESETLOG))
 	{
 		ConfigWarn("Option \"%s\" is obsolete, ignored, use \"%s\" instead", optname, WRITELOG.data());
 		return true;
@@ -1897,7 +1902,7 @@ void Options::MergeOldScriptOption(OptEntries* optEntries, const char* optname, 
 				{
 					char* p = (char*)catoptname + 8;
 					while (*p >= '0' && *p <= '9') p++;
-					if (p && (!strcasecmp(p, ".extensions")))
+					if (!strcasecmp(p, ".extensions"))
 					{
 						if (!opt.m_value.Empty() && !HasScript(opt.m_value, scriptName))
 						{

@@ -271,8 +271,7 @@ void FeedFile::Parse_EndElement(const char* name)
 		ResetTagContent();
 		ParseSubject(*m_feedItemInfo);
 	}
-	else if (!strcmp("link", name) && m_feedItemInfo &&
-		(!m_feedItemInfo->GetUrl() || strlen(m_feedItemInfo->GetUrl()) == 0))
+	else if (!strcmp("link", name) && m_feedItemInfo && m_feedItemInfo->GetUrl()[0] == '\0')
 	{
 		m_feedItemInfo->SetUrl(m_tagContent.c_str());
 		ResetTagContent();

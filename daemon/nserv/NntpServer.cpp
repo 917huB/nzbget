@@ -268,10 +268,7 @@ void NntpProcessor::ServArticle()
 			return;
 		}
 
-		if (!ok)
-		{
-			m_connection->WriteLine("430 No Such Article Found\r\n");
-		}
+		m_connection->WriteLine("430 No Such Article Found\r\n");
 	}
 	else
 	{

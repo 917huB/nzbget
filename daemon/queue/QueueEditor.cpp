@@ -2,6 +2,7 @@
  *  This file is part of nzbget. See <https://nzbget.com>.
  *
  *  Copyright (C) 2007-2017 Andrey Prygunkov <hugbug@users.sourceforge.net>
+ *  Copyright (C) 2026 Denis <denis@nzbget.com>
  *
  *  This program is free software; you can redistribute it and/or modify
  *  it under the terms of the GNU General Public License as published by
@@ -456,6 +457,11 @@ bool QueueEditor::InternEditList(ItemList* itemList,
 void QueueEditor::PrepareList(ItemList* itemList, IdList* idList,
 	DownloadQueue::EEditAction action, int offset)
 {
+	if (!itemList || !idList)
+	{
+		return;
+	}
+
 	if (action == DownloadQueue::eaFileMoveTop || action == DownloadQueue::eaGroupMoveTop)
 	{
 		offset = -MAX_ID;

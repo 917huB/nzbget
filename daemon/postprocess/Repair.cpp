@@ -73,7 +73,7 @@ ParChecker::EFileStatus RepairController::PostParChecker::FindFileCrc(const char
 {
 	CompletedFile* completedFile = nullptr;
 
-	for (CompletedFile& completedFile2 : m_postInfo->GetNzbInfo()->GetCompletedFiles())
+	for (CompletedFile& completedFile2 : *m_postInfo->GetNzbInfo()->GetCompletedFiles())
 	{
 		if (!strcasecmp(completedFile2.GetFilename(), filename))
 		{
@@ -117,7 +117,7 @@ ParChecker::EFileStatus RepairController::PostParChecker::FindFileCrc(const char
 
 const char* RepairController::PostParChecker::FindFileOrigname(const char* filename)
 {
-	for (CompletedFile& completedFile : m_postInfo->GetNzbInfo()->GetCompletedFiles())
+	for (CompletedFile& completedFile : *m_postInfo->GetNzbInfo()->GetCompletedFiles())
 	{
 		if (!strcasecmp(completedFile.GetFilename(), filename))
 		{

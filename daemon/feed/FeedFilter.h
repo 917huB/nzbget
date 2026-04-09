@@ -52,7 +52,7 @@ private:
 	class Term
 	{
 	public:
-		Term() {}
+		Term() = default;
 		Term(Term&&) = delete; // catch performance issues
 		void SetRefValues(RefValues* refValues) { m_refValues = refValues; }
 		bool Compile(char* token);
