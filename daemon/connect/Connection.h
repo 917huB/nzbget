@@ -30,6 +30,61 @@
 #include "TlsSocket.h"
 #endif
 
+#include <memory>
+#include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
+#include <variant>
+#include <coroutine>
+
+namespace network
+{
+
+using namespace boost::asio;
+using namespace boost::system;
+using Socket = std::variant<ssl::stream<ip::tcp::socket>, ip::tcp::socket>;
+
+class Connection final
+{
+	explicit Connection(ip::tcp::socket socket) 			 : m_socket(std::move(socket)) {}
+	explicit Connection(ssl::stream<ip::tcp::socket> socket) : m_socket(std::move(socket)) {}
+
+	awaitable<void> Read(mutable_buffer buffer)
+	{
+		co_await std::visit([&](auto& s){
+			return async_read(s, buffer, use_awaitable);
+		}, m_socket);
+	}
+
+	awaitable<void> Write(const_buffer buffer)
+	{
+		co_await std::visit([&](auto& s){
+			return async_write(s, buffer, use_awaitable);
+		}, m_socket);
+	}
+
+	awaitable<void> Close()
+	{
+		error_code ec;
+		if (auto* ssl = std::get_if<ssl::stream<ip::tcp::socket>>(&m_socket))
+		{
+			co_await ssl->async_shutdown(redirect_error(use_awaitable, ec));
+		}
+
+		std::visit([](auto& s) {
+			error_code ignored;
+			s.lowest_layer().close(ignored);
+		}, m_socket);
+	}
+
+	~Connection() = default;
+
+private:
+	Socket m_socket;
+};
+
+
+}
+
 class Connection
 {
 public:
