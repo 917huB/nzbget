@@ -97,7 +97,7 @@ void WinConsole::InitAppMode()
 		// make command line to start in server mode
 		m_defaultArguments = (char**)malloc(sizeof(char*) * 3);
 		m_defaultArguments[0] = (*g_Arguments)[0];
-		m_defaultArguments[1] = "-s";
+		m_defaultArguments[1] = (char*)"-s";
 		m_defaultArguments[2] = nullptr;
 		g_Arguments = (char*(*)[])m_defaultArguments;
 		g_ArgumentCount = 2;

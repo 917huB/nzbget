@@ -25,7 +25,7 @@
 extern void ExitProc();
 RunProc Run = nullptr;
 
-char* strServiceName = "NZBGet";
+const char* strServiceName = "NZBGet";
 SERVICE_STATUS_HANDLE nServiceStatusHandle;
 DWORD nServiceCurrentStatus;
 
@@ -101,7 +101,7 @@ void StartService(RunProc RunProcPtr)
 
 	SERVICE_TABLE_ENTRY servicetable[]=
 	{
-		{strServiceName,(LPSERVICE_MAIN_FUNCTION)ServiceMain},
+		{(LPSTR)strServiceName,(LPSERVICE_MAIN_FUNCTION)ServiceMain},
 		{nullptr,nullptr}
 	};
 	BOOL success = StartServiceCtrlDispatcher(servicetable);
