@@ -75,6 +75,79 @@
 #endif
 
 #include <locale>
+#include <coroutine>
+#include <concepts>
+#include <format>
+#include <ranges>
+#include <span>
+#include <iostream>
+#include <vector>
+#include <string>
+
+template<std::integral T>
+void cpp20_info(T value) {
+    std::cout << std::format("[INFO] Value: {}\n", value);
+}
+
+void cpp20_info(const char* value) {
+    std::cout << std::format("[INFO] {}\n", value);
+}
+
+void cpp20_info(const std::string& value) {
+    std::string formatted = std::format("[C++20-STRING] {}", value);
+    std::cout << formatted << std::endl;
+}
+
+template<std::ranges::range R>
+    requires (!std::same_as<R, std::string>)
+void cpp20_info(R&& range) {
+    std::cout << std::format("[INFO] Range size: {}\n", std::ranges::distance(range));
+}
+
+void cpp20_info(std::span<const int> sp) {
+    std::cout << std::format("[INFO] Span size: {}, first: {}\n", sp.size(), sp[0]);
+}
+
+struct Cpp20Task {
+    struct promise_type {
+        Cpp20Task get_return_object() { return Cpp20Task{}; }
+        std::suspend_always initial_suspend() { return {}; }
+        std::suspend_always final_suspend() noexcept { return {}; }
+        void return_void() {}
+        void unhandled_exception() {}
+    };
+};
+
+struct Awaitable {
+    bool await_ready() const noexcept { return false; }
+    void await_suspend(std::coroutine_handle<>) const noexcept {}
+    void await_resume() const noexcept {}
+};
+
+Cpp20Task cpp20_coro_demo(const char* msg) {
+    std::cout << std::format("[CORO] {}\n", msg);
+    co_return;
+}
+
+void cpp20_run_demos() {
+    cpp20_info(42);
+
+    auto nums = std::views::iota(1, 6);
+    auto doubled = nums | std::views::transform([](int x) { return x * 2; });
+    cpp20_info(doubled);
+
+    std::cout << "[INFO] Filtered view: ";
+    for (auto v : doubled | std::views::filter([](int x) { return x > 5; })) {
+        std::cout << v << " ";
+    }
+    std::cout << "\n";
+
+    std::vector<int> arr = {1, 2, 3, 4, 5};
+    cpp20_info(std::span<const int>(arr));
+
+    cpp20_coro_demo("Coroutine in main with char pointer");
+    cpp20_info("Hello from info function");
+}
 
 // Prototypes
 void RunMain();
@@ -131,6 +204,8 @@ int main(int argc, char *argv[], char *argp[])
 #endif
 
 	setlocale(LC_CTYPE, "");
+
+	cpp20_run_demos();
 
 	Util::Init();
 	rapidyenc_decode_init();
