@@ -245,19 +245,19 @@
   },
   "time_days_short": {
     "message": "d",
-    "description": "Short abbreviation for days (e.g. 5d)"
+    "description": "Postfix suffix for days used in duration display (e.g. '5d', '10d'). Appears AFTER the number with no space."
   },
   "time_hours_short": {
     "message": "h",
-    "description": "Short abbreviation for hours (e.g. 10h)"
+    "description": "Postfix suffix for hours used in duration display (e.g. '10h', '24h'). Appears AFTER the number with no space."
   },
   "time_minutes_short": {
     "message": "m",
-    "description": "Short abbreviation for minutes (e.g. 30m)"
+    "description": "Postfix suffix for minutes used in duration display (e.g. '30m', '45m'). Appears AFTER the number with no space."
   },
   "time_seconds_short": {
     "message": "s",
-    "description": "Short abbreviation for seconds (e.g. 45s)"
+    "description": "Postfix suffix for seconds used in duration display (e.g. '45s', '30s'). Appears AFTER the number with no space."
   },
   "label_selected_period": {
     "message": "Selected period:",
@@ -755,6 +755,10 @@
     "message": "This Month",
     "description": "Label indicating data usage or bandwidth for the current month."
   },
+  "stat_this_year": {
+    "message": "This Year",
+    "description": "Label indicating data usage or bandwidth for the current year."
+  },
   "stat_total": {
     "message": "Total",
     "description": "Label indicating the overall total data usage or bandwidth."
@@ -805,7 +809,7 @@
   },
   "btn_range_60_seconds": {
     "message": "60 seconds",
-    "description": "Option to show last 60 seconds of data"
+    "description": "Button label for chart timeframe selector - selects a 60-second view range. The exact button text depends on the locale."
   },
   "btn_range_60_seconds_title": {
     "message": "Show last 60 seconds",
@@ -989,15 +993,15 @@
   },
   "btn_range_d": {
     "message": "D",
-    "description": "Short label for day range"
+    "description": "Short button label for day range in statistics chart (postfix 'D' after number, e.g., '7D')."
   },
   "btn_range_w": {
     "message": "W",
-    "description": "Short label for week range"
+    "description": "Short button label for week range in statistics chart (postfix 'W' after number, e.g., '2W')."
   },
   "btn_range_m": {
     "message": "M",
-    "description": "Short label for month range"
+    "description": "Short button label for month range in statistics chart (postfix 'M' after number, e.g., '1M')."
   },
   "btn_close": {
     "message": "Close",
@@ -2017,7 +2021,7 @@
   },
   "label_na": {
     "message": "N/A",
-    "description": "Label indicating a value is 'Not Available' or 'Not Applicable'."
+    "description": "Label displayed in System Info dialog when a value is unavailable (e.g., 'N/A' for missing OS, version, or IP address)."
   },
   "label_not_found": {
     "message": "Not found",
@@ -3021,11 +3025,11 @@
   },
   "status_recipient": {
     "message": "recipient",
-    "description": "Lowercase status indicating the item is a recipient of extra par blocks."
+    "description": "PAR check status label - indicates item received extra par blocks from duplicate files (technical term, not mail recipient)."
   },
   "status_donor": {
     "message": "donor",
-    "description": "Lowercase status indicating the item is a donor of extra par blocks."
+    "description": "PAR check status label - indicates item donated extra par blocks to duplicate files (technical term, not charitable donor)."
   },
   "status_bad": {
     "message": "bad",
@@ -3057,7 +3061,7 @@
   },
   "status_downloading_cap": {
     "message": "downloading",
-    "description": "Capitalized status indicating an item is currently downloading."
+    "description": "Status label for items currently being downloaded (present participle, e.g., 'downloading')."
   },
   "status_qs_queued_cap": {
     "message": "qs-queued",
@@ -3153,7 +3157,7 @@
   },
   "status_health_val": {
     "message": "health",
-    "description": "Lowercase status indicating a health check operation is taking place (e.g., 'Checking health' or just 'health')."
+    "description": "Health status of downloaded item - indicates file integrity/completeness percentage (e.g., '95% health'). This is a technical metric for file health, NOT general wellbeing."
   },
   "status_scan_val": {
     "message": "scan",
@@ -3433,15 +3437,15 @@
   },
   "label_dupe_score_prefix": {
     "message": "dupe-score: ",
-    "description": "Prefix label displayed before the duplicate score value. Used in UI labels."
+    "description": "Prefix for duplicate detection score (e.g., 'dupe-score: 500'). Part of NZBGet's duplicate checking system. 'dupe' means 'duplicate' - do NOT translate as 'double'."
   },
   "label_dupe_key_prefix": {
     "message": "dupe-key: ",
-    "description": "Prefix label displayed before the duplicate key identifier used by the duplicate check system."
+    "description": "Prefix before duplicate detection key identifier (e.g., 'dupe-key: abc123'). 'dupe' means 'duplicate' - do NOT translate as 'double'."
   },
   "label_dupe_mode_prefix": {
     "message": "dupe-mode: ",
-    "description": "Prefix label displayed before the duplicate handling mode (e.g., Score, All, Force)."
+    "description": "Prefix for duplicate handling mode (ALL, SCORE, FORCE). 'dupe' means 'duplicate' - do NOT translate as 'double'."
   },
   "notif_messages_deleted": {
     "message": "Messages have been deleted",
@@ -4230,6 +4234,42 @@
   "config_desc_eventinterval": {
     "message": "Minimum interval between queue events.\n\nExtension scripts can opt-in for progress notifcations during\ndownload. For downloads containing many small files the events can\nbe fired way too often increasing load on the system due to script\nexecution.\n\nThis option allows to reduce the number of calls of scripts by\nskipping \"file-downloaded\"-events if the previous call for the same\ndownload (nzb-file) were performed a short time ago (as defined by\nthe option).\n\nValue \"-1\" disables \"file-downloaded\"-events. Scripts are still\nnotified on other events (such as \"nzb-added\" or \"nzb-downloaded\").",
     "description": "Description for the option EventInterval DO NOT translate technical values enclosed in quotes."
+  },
+  "config_desc_activityanimation": {
+    "message": "Animation on play/pause button.",
+    "description": "Description for the option ActivityAnimation"
+  },
+  "config_desc_refreshanimation": {
+    "message": "Animation on refresh button.",
+    "description": "Description for the option RefreshAnimation"
+  },
+  "config_desc_slideanimation": {
+    "message": "Animation of tab changes in tabbed dialogs.",
+    "description": "Description for the option SlideAnimation"
+  },
+  "config_desc_setfocus": {
+    "message": "Automatically set focus to the first control in dialogs.\n\nNot recommended for devices without physical keyboard.",
+    "description": "Description for the option SetFocus"
+  },
+  "config_desc_shownotifications": {
+    "message": "Show popup notifications.",
+    "description": "Description for the option ShowNotifications"
+  },
+  "config_desc_dupebadges": {
+    "message": "Show badges with duplicate info in downloads and history.",
+    "description": "Description for the option DupeBadges"
+  },
+  "config_desc_rowselect": {
+    "message": "Select records by clicking on any part of the row, not just on the check mark.",
+    "description": "Description for the option RowSelect"
+  },
+  "config_desc_windowtitle": {
+    "message": "Window-title for browser.\n\nThe following variables can be used within placeholders to insert current data:\n   COUNT - number of items in queue;\n   SPEED - current download speed.\n   TIME - remaining time;\n   PAUSE - \"download paused\"-indicator.\n\nTo form a placeholder surround variable with percent-characters, for example: %COUNT%.\n\nTo improve formating there is a special syntax. If variable value is empty or null then nothing is inserted:\n%(VARNAME)% - show variable value inside parenthesis;\n%[VARNAME]% - show variable value inside square brackets;\n%VARNAME-% - append hyphen to variable value;\n%(VARNAME-)% - show variable value with hyphen inside parenthesis;\n%[VARNAME-]% - show variable value with hyphen inside square brackets.\n\nExamples:\n \"%(COUNT-)% NZBGet\" - show number of downloads in parenthesis followed by a hyphen; don't show \"(0) - \" if queue is empty;\n \"%PAUSE% %(COUNT-)% NZBGet\" - as above but also show pause-indicator if paused;\n \"%[COUNT]% %SPEED-% NZBGet\" - show number of downloads and speed if not null (default setting).",
+    "description": "Description for the option WindowTitle"
+  },
+  "config_desc_refreshretries": {
+    "message": "Number of refresh attempts if a communication error occurs (0-99).\n\nIf all attempts fail, an error is displayed and the automatic refresh stops.",
+    "description": "Description for the option RefreshRetries"
   },
   "help_feed_filter_options_def": {
     "message": "Definition of an option: $1name:value$2",

@@ -50,7 +50,7 @@ function DiskSpeedTestsForm()
 		if (isNumeric) {
 			$diskSpeedTestBtn.text(Util.formatSpeed(Number(saved))).removeAttr('data-i18n');
 		} else {
-			$diskSpeedTestBtn.attr('data-i18n', 'sysinfo_run_test').text('');
+			$diskSpeedTestBtn.attr('data-i18n', 'sysinfo_run_test');
 			I18n.translatePage($diskSpeedTestBtn);
 		}
 
@@ -111,7 +111,7 @@ function DiskSpeedTestsForm()
 				if (isNumeric) {
 					$diskSpeedTestBtn.html(Util.formatSpeed(Number(saved))).removeAttr('data-i18n');
 				} else {
-					$diskSpeedTestBtn.attr('data-i18n', 'sysinfo_run_test').html('');
+					$diskSpeedTestBtn.attr('data-i18n', 'sysinfo_run_test');
 					I18n.translatePage($diskSpeedTestBtn);
 				}
 				disableBtnToggle(false);
@@ -307,7 +307,7 @@ var SystemInfo = (new function($)
 			if (isNumeric) {
 				item.btn.text(Util.formatSpeed(Number(saved))).removeAttr('data-i18n');
 			} else {
-				item.btn.attr('data-i18n', 'sysinfo_run_test').text('');
+				item.btn.attr('data-i18n', 'sysinfo_run_test');
 				I18n.translatePage(item.btn);
 			}
 		});
@@ -521,7 +521,7 @@ var SystemInfo = (new function($)
 		if (isNumeric) {
 			$SysInfo_DestDirDiskTestBtn.text(Util.formatSpeed(Number(savedResults))).removeAttr('data-i18n');
 		} else {
-			$SysInfo_DestDirDiskTestBtn.attr('data-i18n', 'sysinfo_run_test').text('');
+			$SysInfo_DestDirDiskTestBtn.attr('data-i18n', 'sysinfo_run_test');
 			I18n.translatePage($SysInfo_DestDirDiskTestBtn);
 		}
 	}
@@ -540,7 +540,7 @@ var SystemInfo = (new function($)
 		if (isNumeric) {
 			$SysInfo_InterDirDiskTestBtn.text(Util.formatSpeed(Number(savedResults))).removeAttr('data-i18n');
 		} else {
-			$SysInfo_InterDirDiskTestBtn.attr('data-i18n', 'sysinfo_run_test').text('');
+			$SysInfo_InterDirDiskTestBtn.attr('data-i18n', 'sysinfo_run_test');
 			I18n.translatePage($SysInfo_InterDirDiskTestBtn);
 		}
 	}

@@ -165,85 +165,82 @@ $(document).ready(function()
 	// Language elements
 	var $langSelect = $('#LanguageSelect');
 
-	I18n.initPromise.done(function()
-	{
-		// 1. Frontend init (depends on i18n for error handler)
-		Frontend.init();
+	// Initialize frontend (i18n loads translations internally)
+	Frontend.init();
 
-		// 2. Language Setup
-		var langs = I18n.getAvailableLangs();
-		var currentLang = I18n.getCurrentLang();
+	// Language Setup
+	var langs = I18n.getAvailableLangs();
+	var currentLang = I18n.getCurrentLang();
 
-		langs.forEach(function(lang) {
-			var selected = (lang.code === currentLang) ? 'selected' : '';
-			var option = $('<option value="' + lang.code + '" ' + selected + '>' + lang.name + '</option>');
-			$langSelect.append(option);
-		});
+	langs.forEach(function(lang) {
+		var selected = (lang.code === currentLang) ? 'selected' : '';
+		var option = $('<option value="' + lang.code + '" ' + selected + '>' + lang.name + '</option>');
+		$langSelect.append(option);
+	});
 
-		$langSelect.click(function(e) {
-			e.stopPropagation();
-		});
+	$langSelect.click(function(e) {
+		e.stopPropagation();
+	});
 
-		$langSelect.change(function() {
-			I18n.setLanguage($(this).val());
-		});
+	$langSelect.change(function() {
+		I18n.setLanguage($(this).val());
+	});
 
-		// 3. Unit Setup
-		function updateUnitUI() {
-			$('.unit-btn').removeClass('btn-active');
-			$('.unit-btn[data-val="' + I18n.getSpeedUnit() + '"]').addClass('btn-active');
-		}
+	// 3. Unit Setup
+	function updateUnitUI() {
+		$('.unit-btn').removeClass('btn-active');
+		$('.unit-btn[data-val="' + I18n.getSpeedUnit() + '"]').addClass('btn-active');
+	}
 
-		updateUnitUI();
+	updateUnitUI();
 
-		$('.unit-btn').click(function(e) {
-			e.preventDefault();
-			e.stopPropagation();
+	$('.unit-btn').click(function(e) {
+		e.preventDefault();
+		e.stopPropagation();
 
-			var selectedUnit = $(this).attr('data-val');
-			if (selectedUnit !== I18n.getSpeedUnit()) {
-				I18n.setSpeedUnit(selectedUnit);
-			}
-		});
-
-		// 4. Theme Setup (doesn't depend on i18n but needs to run after DOM ready)
-		function isDarkTheme() { return themeStyleSheet.attr('href') === darkThemeStyleSheet; }
-
-		function updateThemeUI() {
-			$('.theme-btn').removeClass('btn-active');
-			var current = isDarkTheme() ? 'dark' : 'light';
-			$('.theme-btn[data-val="' + current + '"]').addClass('btn-active');
-		}
-
-		if (!savedTheme) turnOnThemeDependingOnSystemTheme();
-		else if (savedTheme === 'light') turnOnLightTheme();
-		else turnOnDarkTheme();
-
-		updateThemeUI();
-
-		$('.theme-btn').click(function(e) {
-			e.preventDefault();
-			var selectedTheme = $(this).attr('data-val');
-			if (selectedTheme === 'dark') turnOnDarkTheme();
-			else turnOnLightTheme();
-			Util.saveToLocalStorage('Theme', selectedTheme);
-			updateThemeUI();
-		});
-
-		function turnOnThemeDependingOnSystemTheme() { if (isSystemThemeDark()) turnOnDarkTheme(); else turnOnLightTheme(); }
-		function turnOnLightTheme() { themeStyleSheet.attr('href', lightThemeStyleSheet); }
-		function turnOnDarkTheme() { themeStyleSheet.attr('href', darkThemeStyleSheet); }
-
-		function isSystemThemeDark()
-		{
-			return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
-		}
-
-		function isDarkTheme()
-		{
-			return themeStyleSheet.attr('href') === darkThemeStyleSheet;
+		var selectedUnit = $(this).attr('data-val');
+		if (selectedUnit !== I18n.getSpeedUnit()) {
+			I18n.setSpeedUnit(selectedUnit);
 		}
 	});
+
+	// 4. Theme Setup (doesn't depend on i18n but needs to run after DOM ready)
+	function isDarkTheme() { return themeStyleSheet.attr('href') === darkThemeStyleSheet; }
+
+	function updateThemeUI() {
+		$('.theme-btn').removeClass('btn-active');
+		var current = isDarkTheme() ? 'dark' : 'light';
+		$('.theme-btn[data-val="' + current + '"]').addClass('btn-active');
+	}
+
+	if (!savedTheme) turnOnThemeDependingOnSystemTheme();
+	else if (savedTheme === 'light') turnOnLightTheme();
+	else turnOnDarkTheme();
+
+	updateThemeUI();
+
+	$('.theme-btn').click(function(e) {
+		e.preventDefault();
+		var selectedTheme = $(this).attr('data-val');
+		if (selectedTheme === 'dark') turnOnDarkTheme();
+		else turnOnLightTheme();
+		Util.saveToLocalStorage('Theme', selectedTheme);
+		updateThemeUI();
+	});
+
+	function turnOnThemeDependingOnSystemTheme() { if (isSystemThemeDark()) turnOnDarkTheme(); else turnOnLightTheme(); }
+	function turnOnLightTheme() { themeStyleSheet.attr('href', lightThemeStyleSheet); }
+	function turnOnDarkTheme() { themeStyleSheet.attr('href', darkThemeStyleSheet); }
+
+	function isSystemThemeDark()
+	{
+		return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+	}
+
+	function isDarkTheme()
+	{
+		return themeStyleSheet.attr('href') === darkThemeStyleSheet;
+	}
 });
 
 	var switchingTheme = false;

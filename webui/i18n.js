@@ -74,26 +74,34 @@
 	this.init = function()
 	{
 		var self = this;
-		// 1. Load available languages from source
-		return $.ajax({
+
+		// 1. Load English base translations from locales.source.json
+		$.ajax({
 			url: 'locales.source.json',
 			dataType: 'json',
 			cache: true
 		}).done(function(data)
 		{
-			if (data) {
-				if (data['__LOCALES__']) {
+			if (data)
+			{
+				// Extract available languages
+				if (data['__LOCALES__'])
+				{
 					var locales = data['__LOCALES__'];
-					for (var code in locales) {
-						if (locales.hasOwnProperty(code)) {
+					for (var code in locales)
+					{
+						if (locales.hasOwnProperty(code))
+						{
 							availableLangs.push({ code: code, name: locales[code] });
 						}
 					}
 				}
-				// Load default English messages from source
-				for (var key in data) {
-					if (key !== '__LOCALES__' && data.hasOwnProperty(key) && data[key] && data[key].message) {
-						baseTranslations[key] = data[key].message;
+
+				// Load English messages as base translations
+				for (var key in data)
+				{
+					if (key !== '__LOCALES__' && data.hasOwnProperty(key) && data[key] && data[key].message)
+					{
 						translations[key] = data[key].message;
 					}
 				}
@@ -107,17 +115,20 @@
 			}
 			else
 			{
-				// Try to get exact match from browser, or fallback to language match
-				var browserLang = navigator.language || navigator.userLanguage; 
+				var browserLang = navigator.language || navigator.userLanguage;
 				if (browserLang)
 				{
-					if (self.isValidLang(browserLang)) {
+					if (self.isValidLang(browserLang))
+					{
 						currentLocale = browserLang;
-					} else {
-						// Fallback to base language (e.g., "fr-CA" -> "fr")
+					}
+					else
+					{
 						var shortLang = browserLang.split('-')[0].toLowerCase();
-						for (var i = 0; i < availableLangs.length; i++) {
-							if (availableLangs[i].code.toLowerCase() === shortLang) {
+						for (var i = 0; i < availableLangs.length; i++)
+						{
+							if (availableLangs[i].code.toLowerCase() === shortLang)
+							{
 								currentLocale = availableLangs[i].code;
 								break;
 							}
@@ -125,47 +136,63 @@
 					}
 				}
 			}
- 
+
 			// 3. Unit Detection
 			var savedSpeedUnit = localStorage.getItem('SpeedUnit');
 			if (savedSpeedUnit)
 			{
 				speedUnit = savedSpeedUnit;
 			}
-		}).pipe(function() {
-			// 4. Load Locale Files
+
+		// 4. Try to load user locale (if not English)
 			if (currentLocale !== 'en')
 			{
-				return self.loadLocale(currentLocale).fail(function() {
+				$.ajax({
+					url: '_locales/' + currentLocale + '/messages.json',
+					dataType: 'json',
+					cache: true
+				}).done(function(data)
+				{
+					// Merge locale translations
+					for (var key in data)
+					{
+						if (data.hasOwnProperty(key))
+						{
+							translations[key] = data[key];
+						}
+					}
+				}).fail(function()
+				{
+					// Locale file not found - continue with English
+					console.warn('Locale "' + currentLocale + '" not found, using English');
 					currentLocale = 'en';
+				}).always(function()
+				{
+					// Translate page after translations are loaded (or failed)
+					self.translatePage();
 				});
 			}
-			return $.Deferred().resolve();
+			else
+			{
+				// Translate page after English translations are loaded
+				self.translatePage();
+			}
 		}).fail(function()
 		{
-			console.error("Failed to load locales.source.json");
+			// locales.source.json failed - critical error
+			alert('Error: WebUI cannot work without translations. Please refresh the page or clear your browser cache.');
+			console.error('Failed to load locales.source.json');
 		});
 	};
 
 	this.loadLocale = function(langCode)
 	{
-		var url = '_locales/' + langCode + '/messages.json';
-		return $.ajax({
-			url: url,
-			dataType: 'json',
-			cache: true
-		}).done(function(data)
-		{
-			// Merge new translations into existing ones
-			for (var key in data) {
-				if (data.hasOwnProperty(key)) {
-					translations[key] = data[key];
-				}
-			}
-		}).fail(function()
-		{
-			console.error("Failed to load " + url);
-		});
+		// Not used anymore - functionality moved to init()
+	};
+
+	this.loadLocale = function(langCode)
+	{
+		// Not used anymore - functionality moved to init()
 	};
  
 	this.isValidLang = function(code)
@@ -254,7 +281,7 @@
 				var i = 1;
 				while (this.hasAttribute('data-i18n-html-arg-' + i)) {
 					var arg = this.getAttribute('data-i18n-html-arg-' + i);
-					translateArgs.push(Util.textToHtml(arg));
+					translateArgs.push(arg);
 					i++;
 				}
 				var translated = I18n.translate.apply(I18n, translateArgs);
@@ -281,18 +308,7 @@
 				if ($this.data('i18n-last') !== translated && (translated !== key || $this.text() === "")) {
 					$this.data('i18n-last', translated);
 					
-					// Safely update text without wiping child nodes
-					var textNodes = $this.contents().filter(function() { return this.nodeType === 3 && this.nodeValue.trim() !== ''; });
-					if (textNodes.length > 0) {
-						textNodes.first()[0].nodeValue = translated;
-					} else {
-						var allTextNodes = $this.contents().filter(function() { return this.nodeType === 3; });
-						if (allTextNodes.length > 0) {
-							allTextNodes.last()[0].nodeValue = translated;
-						} else {
-							$this.prepend(document.createTextNode(translated));
-						}
-					}
+					$this.text(translated);
 				}
 			}
 
@@ -389,30 +405,37 @@
 		var self = this;
 		if (this.isValidLang(localeCode))
 		{
-			currentLocale = localeCode;
-			localStorage.setItem('Language', localeCode);
-			
-			// Reset translations to English base
-			translations = {};
-			for (var key in baseTranslations) {
-				if (baseTranslations.hasOwnProperty(key)) {
-					translations[key] = baseTranslations[key];
-				}
-			}
-
-			// Load new locale strings and apply without reload
-			if (currentLocale !== 'en')
+			// Load new locale strings and apply
+			if (localeCode !== 'en')
 			{
-				this.loadLocale(currentLocale).fail(function() {
-					currentLocale = 'en';
-					localeCode = 'en';
-				}).always(function() {
+				$.ajax({
+					url: '_locales/' + localeCode + '/messages.json',
+					dataType: 'json',
+					cache: true
+				}).done(function(data) {
+					// Success - save language and merge translations
+					currentLocale = localeCode;
+					localStorage.setItem('Language', localeCode);
+					for (var key in data) {
+						if (data.hasOwnProperty(key)) {
+							translations[key] = data[key];
+						}
+					}
 					self._applyLanguageChange(localeCode);
+				}).fail(function() {
+					// Locale not found - fall back to English
+					console.warn('Locale "' + localeCode + '" not found, using English');
+					currentLocale = 'en';
+					localStorage.setItem('Language', 'en');
+					self._applyLanguageChange('en');
 				});
 			}
 			else
 			{
-				this._applyLanguageChange(localeCode);
+				// English selected
+				currentLocale = 'en';
+				localStorage.setItem('Language', 'en');
+				this._applyLanguageChange('en');
 			}
 		}
 	};
@@ -457,11 +480,6 @@
 		this.setSpeedUnit((speedUnit === 'MB/s') ? 'Mb/s' : 'MB/s');
 	};
 
-	this.initPromise = this.init();
-
-	$(document).ready(function() {
-		I18n.initPromise.always(function() {
-			I18n.translatePage();
-		});
-	});
+	// Initialize i18n - translations loaded via AJAX, translatePage called when complete
+	this.init();
 }(jQuery));
