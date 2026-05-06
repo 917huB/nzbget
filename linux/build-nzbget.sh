@@ -30,7 +30,7 @@ COREX=4
 TESTING="no"
 
 # build variables
-ALL_ARCHS="armel armhf aarch64 i686 x86_64 riscv64 mipsel mipseb ppc500 ppc6xx i686-ndk x86_64-ndk armhf-ndk aarch64-ndk x86_64-bsd"
+ALL_ARCHS="armel armhf aarch64 i686 x86_64 riscv64 ppc6xx i686-ndk x86_64-ndk armhf-ndk aarch64-ndk x86_64-bsd"
 ALL_PLATFORMS="linux android freebsd"
 OUTPUTDIR=build
 BUILDROOT_HOME=/build
