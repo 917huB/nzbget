@@ -311,7 +311,7 @@ var Statistics = new (function ($) {
 			server.connections,
 			"</td></tr>"
 		);
-		html += "<tr><th>Active:</th><td>".concat(
+		html += "<tr><th>Active</th><td>".concat(
 			server.active ? "<span class='txt-success'>Yes</span>" : "<span class='txt-important'>No</span>",
 			"</td></tr>"
 		);
