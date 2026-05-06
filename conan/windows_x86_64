@@ -1,0 +1,11 @@
+[settings]
+os=Windows
+arch=x86_64
+compiler=msvc
+compiler.version=19.44
+compiler.cppstd=20
+compiler.runtime=MT
+build_type=Release
+
+[env]
+CONAN_CMAKE_GENERATOR=Visual Studio 17 2022
